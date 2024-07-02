@@ -1,0 +1,299 @@
+Acceptance NLRTM1
+
+Tests performed:
+	Testing number of hobs between the docker20 and target 01 node using traceroute like:
+		traceroute -m 5 hostname
+
+	Testing the performance of 3 different tests with 2 different message sizes (-s xxx), so 6 tests and running them 2 times.
+		A single publisher without publisher confirms, two consumers (each receiving a copy of every message) that use automatic 
+		acknowledgement mode and a single queue named “throughput-test-x1-y2”. Publishers will publish as quickly as 
+		possible, without any rate limiting
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-01" -a --id "test 01-n" -s 1024 -z 60 --use-millis
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-02" -a --id "test 02-n" -s 512 -z 60 --use-millis
+
+		This modification will use 2 publishers and 4 consumers, typically yielding higher throughput given enough CPU 
+		cores on the machine and RabbitMQ nodes:
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 2 -y 4 -u "throughput-test-03" -a --id "test 03-n" -s 1024 -z 60 --use-millis
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 2 -y 4 -u "throughput-test-04" -a --id "test 04-n" -s 512 -z 60 --use-millis
+
+		This modification switches consumers to manual acknowledgements
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-05" --id "test 05-n" -s 1024 -z 60 --use-millis
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-06" --id "test 06-n" -s 512 -z 60 --use-millis
+
+	Test every cluster node with a short test
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "connection-test" -a --id "con-test" -s 1024 -z 5 --use-millis 
+
+Results:
+	traceroute to nlrtm1-rabbitodp01a.sys.i3d.network (213.163.84.205), 5 hops max, 60 byte packets
+	 1  hosted-by.i3d.net (188.122.92.200)  0.596 ms  0.558 ms  0.526 ms
+	 2  te1-1.gw.rtd.i3d.net (188.122.94.1)  0.491 ms  0.462 ms  0.433 ms
+	 3  nlrtm1-rt002i.i3d.net (109.200.218.246)  0.711 ms nlrtm1-rt001i.i3d.net (109.200.218.164)  0.877 ms  0.746 ms
+	 4  * * *
+	 5  * * *
+
+	2023-11-26 14:19:18 Starting test 01-1
+	id: test 01-1, sending rate avg: 37416 msg/s
+	id: test 01-1, receiving rate avg: 37381 msg/s
+	id: test 01-1, consumer latency min/median/75th/95th/99th 14/103/137/220/297 ms
+	2023-11-26 14:20:31 Starting test 02-1
+	id: test 02-1, sending rate avg: 55422 msg/s
+	id: test 02-1, receiving rate avg: 55389 msg/s
+	id: test 02-1, consumer latency min/median/75th/95th/99th 19/162/224/1104/1363 ms
+	2023-11-26 14:21:46 Starting test 03-1
+	id: test 03-1, sending rate avg: 34118 msg/s
+	id: test 03-1, receiving rate avg: 34096 msg/s
+	id: test 03-1, consumer latency min/median/75th/95th/99th 1/126/197/2061/2632 ms
+	2023-11-26 14:22:59 Starting test 04-1
+	id: test 04-1, sending rate avg: 57103 msg/s
+	id: test 04-1, receiving rate avg: 57079 msg/s
+	id: test 04-1, consumer latency min/median/75th/95th/99th 4/96/213/1251/1655 ms
+	2023-11-26 14:24:14 Starting test 05-1
+	id: test 05-1, sending rate avg: 34847 msg/s
+	id: test 05-1, receiving rate avg: 34847 msg/s
+	id: test 05-1, consumer latency min/median/75th/95th/99th 1/111/154/1665/1745 ms
+	2023-11-26 14:25:30 Starting test 06-1
+	id: test 06-1, sending rate avg: 43201 msg/s
+	id: test 06-1, receiving rate avg: 43201 msg/s
+	id: test 06-1, consumer latency min/median/75th/95th/99th 5/495/750/1183/1508 ms
+
+	2023-11-26 14:26:45 Starting test 01-2
+	id: test 01-2, sending rate avg: 18664 msg/s
+	id: test 01-2, receiving rate avg: 18636 msg/s
+	id: test 01-2, consumer latency min/median/75th/95th/99th 1/331/386/484/12637 ms
+	2023-11-26 14:27:59 Starting test 02-2
+	id: test 02-2, sending rate avg: 53465 msg/s
+	id: test 02-2, receiving rate avg: 53454 msg/s
+	id: test 02-2, consumer latency min/median/75th/95th/99th 5/116/163/228/6257 ms
+	2023-11-26 14:29:16 Starting test 03-2
+	id: test 03-2, sending rate avg: 35976 msg/s
+	id: test 03-2, receiving rate avg: 35957 msg/s
+	id: test 03-2, consumer latency min/median/75th/95th/99th 1/150/220/322/1279 ms
+	2023-11-26 14:30:30 Starting test 04-2
+	id: test 04-2, sending rate avg: 58094 msg/s
+	id: test 04-2, receiving rate avg: 58065 msg/s
+	id: test 04-2, consumer latency min/median/75th/95th/99th 12/250/361/1662/1810 ms
+	2023-11-26 14:31:45 Starting test 05-2
+	id: test 05-2, sending rate avg: 34087 msg/s
+	id: test 05-2, receiving rate avg: 34081 msg/s
+	id: test 05-2, consumer latency min/median/75th/95th/99th 9/200/329/1335/1401 ms
+	2023-11-26 14:33:00 Starting test 06-2
+	id: test 06-2, sending rate avg: 35269 msg/s
+	id: test 06-2, receiving rate avg: 35269 msg/s
+	id: test 06-2, consumer latency min/median/75th/95th/99th 16/478/737/990/1132 ms
+
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 27049 msg/s, received: 24596 msg/s, min/median/75th/95th/99th consumer latency: 1/23/40/82/131 ms
+	id: con-test, time 2.001 s, sent: 44206 msg/s, received: 43662 msg/s, min/median/75th/95th/99th consumer latency: 13/50/69/108/192 ms
+	id: con-test, time 3.001 s, sent: 45801 msg/s, received: 44360 msg/s, min/median/75th/95th/99th consumer latency: 5/80/109/158/218 ms
+	id: con-test, time 4.001 s, sent: 50147 msg/s, received: 46909 msg/s, min/median/75th/95th/99th consumer latency: 82/138/160/202/240 ms
+	id: con-test, time 5.001 s, sent: 48604 msg/s, received: 47443 msg/s, min/median/75th/95th/99th consumer latency: 124/212/231/289/341 ms
+	id: con-test, time 6.001 s, sent: 800 msg/s, received: 7839 msg/s, min/median/75th/95th/99th consumer latency: 166/210/221/253/261 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 27645 msg/s
+	id: con-test, receiving rate avg: 27416 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 2/115/183/235/314 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 44829 msg/s, received: 39686 msg/s, min/median/75th/95th/99th consumer latency: 1/46/93/131/142 ms
+	id: con-test, time 2.001 s, sent: 40698 msg/s, received: 36188 msg/s, min/median/75th/95th/99th consumer latency: 89/175/209/243/252 ms
+	id: con-test, time 3.001 s, sent: 32240 msg/s, received: 28549 msg/s, min/median/75th/95th/99th consumer latency: 190/397/481/521/549 ms
+	id: con-test, time 4.001 s, sent: 0 msg/s, received: 6805 msg/s, min/median/75th/95th/99th consumer latency: 403/513/544/563/576 ms
+	id: con-test, time 5.001 s, sent: 584 msg/s, received: 986 msg/s, min/median/75th/95th/99th consumer latency: 2226/2240/2248/2251/2260 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 22701 msg/s
+	id: con-test, receiving rate avg: 21983 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/190/328/545/2250 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 37994 msg/s, received: 35689 msg/s, min/median/75th/95th/99th consumer latency: 1/39/51/104/187 ms
+	id: con-test, time 2.003 s, sent: 37705 msg/s, received: 38447 msg/s, min/median/75th/95th/99th consumer latency: 1/42/95/154/238 ms
+	id: con-test, time 3.001 s, sent: 48591 msg/s, received: 46271 msg/s, min/median/75th/95th/99th consumer latency: 15/47/86/166/214 ms
+	id: con-test, time 4.001 s, sent: 4256 msg/s, received: 4890 msg/s, min/median/75th/95th/99th consumer latency: 900/1022/1125/1146/1191 ms
+	id: con-test, time 5.001 s, sent: 59838 msg/s, received: 60237 msg/s, min/median/75th/95th/99th consumer latency: 10/51/60/225/910 ms
+	id: con-test, time 6.001 s, sent: 1142 msg/s, received: 3057 msg/s, min/median/75th/95th/99th consumer latency: 49/61/82/212/233 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 28162 msg/s
+	id: con-test, receiving rate avg: 28024 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/44/67/195/1026 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 37192 msg/s, received: 36246 msg/s, min/median/75th/95th/99th consumer latency: 1/19/38/61/79 ms
+	id: con-test, time 2.000 s, sent: 55461 msg/s, received: 51619 msg/s, min/median/75th/95th/99th consumer latency: 12/54/67/79/83 ms
+	id: con-test, time 3.000 s, sent: 44406 msg/s, received: 47062 msg/s, min/median/75th/95th/99th consumer latency: 24/65/91/113/120 ms
+	id: con-test, time 4.001 s, sent: 49539 msg/s, received: 49440 msg/s, min/median/75th/95th/99th consumer latency: 17/52/62/90/101 ms
+	id: con-test, time 5.001 s, sent: 55902 msg/s, received: 53765 msg/s, min/median/75th/95th/99th consumer latency: 20/57/72/93/102 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 45890 msg/s
+	id: con-test, receiving rate avg: 45674 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/53/68/97/110 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 39679 msg/s, received: 36082 msg/s, min/median/75th/95th/99th consumer latency: 1/42/71/137/193 ms
+	id: con-test, time 2.001 s, sent: 49860 msg/s, received: 49584 msg/s, min/median/75th/95th/99th consumer latency: 16/83/112/279/349 ms
+	id: con-test, time 3.001 s, sent: 49412 msg/s, received: 49695 msg/s, min/median/75th/95th/99th consumer latency: 16/64/138/232/299 ms
+	id: con-test, time 4.001 s, sent: 10043 msg/s, received: 7294 msg/s, min/median/75th/95th/99th consumer latency: 43/109/204/231/241 ms
+	id: con-test, time 5.001 s, sent: 43279 msg/s, received: 45751 msg/s, min/median/75th/95th/99th consumer latency: 15/34/126/1235/1293 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 33227 msg/s
+	id: con-test, receiving rate avg: 32881 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/55/114/302/1264 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 35889 msg/s, received: 34894 msg/s, min/median/75th/95th/99th consumer latency: 1/15/23/64/79 ms
+	id: con-test, time 2.001 s, sent: 52716 msg/s, received: 50405 msg/s, min/median/75th/95th/99th consumer latency: 13/30/45/63/83 ms
+	id: con-test, time 3.001 s, sent: 65469 msg/s, received: 59085 msg/s, min/median/75th/95th/99th consumer latency: 19/98/118/152/159 ms
+	id: con-test, time 4.001 s, sent: 62821 msg/s, received: 62640 msg/s, min/median/75th/95th/99th consumer latency: 32/113/158/191/212 ms
+	id: con-test, time 5.001 s, sent: 57343 msg/s, received: 55970 msg/s, min/median/75th/95th/99th consumer latency: 78/163/235/308/334 ms
+	id: con-test, time 6.001 s, sent: 0 msg/s, received: 2522 msg/s, min/median/75th/95th/99th consumer latency: 231/255/262/277/278 ms
+	id: con-test, time 7.001 s, sent: 1.0 msg/s, received: 8719 msg/s, min/median/75th/95th/99th consumer latency: 1140/1160/1174/1192/1196 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 38184 msg/s
+	id: con-test, receiving rate avg: 38184 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/100/151/281/1161 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 25191 msg/s, received: 24525 msg/s, min/median/75th/95th/99th consumer latency: 1/18/28/54/74 ms
+	id: con-test, time 2.000 s, sent: 44913 msg/s, received: 44200 msg/s, min/median/75th/95th/99th consumer latency: 13/25/44/63/95 ms
+	id: con-test, time 3.000 s, sent: 58577 msg/s, received: 54328 msg/s, min/median/75th/95th/99th consumer latency: 13/30/62/96/106 ms
+	id: con-test, time 4.001 s, sent: 47643 msg/s, received: 46691 msg/s, min/median/75th/95th/99th consumer latency: 17/51/79/105/120 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 29752 msg/s
+	id: con-test, receiving rate avg: 29566 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 2/31/64/102/1610 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 42364 msg/s, received: 39990 msg/s, min/median/75th/95th/99th consumer latency: 1/19/38/50/75 ms
+	id: con-test, time 2.000 s, sent: 54321 msg/s, received: 42236 msg/s, min/median/75th/95th/99th consumer latency: 9/78/133/230/256 ms
+	id: con-test, time 3.001 s, sent: 46080 msg/s, received: 52549 msg/s, min/median/75th/95th/99th consumer latency: 88/187/285/387/424 ms
+	id: con-test, time 4.001 s, sent: 61855 msg/s, received: 62860 msg/s, min/median/75th/95th/99th consumer latency: 28/93/138/225/271 ms
+	id: con-test, time 5.001 s, sent: 8901 msg/s, received: 9269 msg/s, min/median/75th/95th/99th consumer latency: 61/94/152/178/185 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 31494 msg/s
+	id: con-test, receiving rate avg: 31312 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 4/97/161/356/2544 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 43249 msg/s, received: 41979 msg/s, min/median/75th/95th/99th consumer latency: 1/18/29/44/50 ms
+	id: con-test, time 2.000 s, sent: 37514 msg/s, received: 37089 msg/s, min/median/75th/95th/99th consumer latency: 9/45/83/134/184 ms
+	id: con-test, time 3.001 s, sent: 51866 msg/s, received: 48973 msg/s, min/median/75th/95th/99th consumer latency: 20/67/86/128/141 ms
+	id: con-test, time 4.001 s, sent: 42867 msg/s, received: 45455 msg/s, min/median/75th/95th/99th consumer latency: 18/66/95/137/182 ms
+	id: con-test, time 5.001 s, sent: 60585 msg/s, received: 55986 msg/s, min/median/75th/95th/99th consumer latency: 20/64/90/123/138 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 42811 msg/s
+	id: con-test, receiving rate avg: 42337 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/54/87/130/163 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 39914 msg/s, received: 38831 msg/s, min/median/75th/95th/99th consumer latency: 1/18/27/44/70 ms
+	id: con-test, time 2.000 s, sent: 59719 msg/s, received: 58054 msg/s, min/median/75th/95th/99th consumer latency: 2/31/50/61/76 ms
+	id: con-test, time 3.000 s, sent: 68469 msg/s, received: 69066 msg/s, min/median/75th/95th/99th consumer latency: 23/65/83/108/120 ms
+	id: con-test, time 4.001 s, sent: 70866 msg/s, received: 67841 msg/s, min/median/75th/95th/99th consumer latency: 22/35/54/66/76 ms
+	id: con-test, time 5.000 s, sent: 73678 msg/s, received: 71048 msg/s, min/median/75th/95th/99th consumer latency: 23/56/70/94/106 ms
+	id: con-test, time 6.001 s, sent: 400 msg/s, received: 5702 msg/s, min/median/75th/95th/99th consumer latency: 55/117/127/164/168 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 41577 msg/s
+	id: con-test, receiving rate avg: 41245 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/42/61/93/123 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 43141 msg/s, received: 40603 msg/s, min/median/75th/95th/99th consumer latency: 1/27/40/60/74 ms
+	id: con-test, time 2.001 s, sent: 62138 msg/s, received: 56745 msg/s, min/median/75th/95th/99th consumer latency: 16/108/125/160/184 ms
+	id: con-test, time 3.001 s, sent: 16319 msg/s, received: 18086 msg/s, min/median/75th/95th/99th consumer latency: 71/115/137/191/194 ms
+	id: con-test, time 4.001 s, sent: 35981 msg/s, received: 33436 msg/s, min/median/75th/95th/99th consumer latency: 37/130/152/1098/1124 ms
+	id: con-test, time 5.001 s, sent: 45691 msg/s, received: 48498 msg/s, min/median/75th/95th/99th consumer latency: 67/151/174/220/229 ms
+	id: con-test, time 6.001 s, sent: 1325 msg/s, received: 5318 msg/s, min/median/75th/95th/99th consumer latency: 92/126/157/191/203 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 27022 msg/s
+	id: con-test, receiving rate avg: 26770 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/114/148/218/1098 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.029 s, sent: 22511 msg/s, received: 21669 msg/s, min/median/75th/95th/99th consumer latency: 1/32/54/94/113 ms
+	id: con-test, time 2.001 s, sent: 28753 msg/s, received: 28746 msg/s, min/median/75th/95th/99th consumer latency: 10/37/58/99/105 ms
+	id: con-test, time 3.001 s, sent: 41043 msg/s, received: 39240 msg/s, min/median/75th/95th/99th consumer latency: 12/35/52/85/92 ms
+	id: con-test, time 4.001 s, sent: 46685 msg/s, received: 45916 msg/s, min/median/75th/95th/99th consumer latency: 18/63/99/146/164 ms
+	id: con-test, time 5.001 s, sent: 59370 msg/s, received: 58693 msg/s, min/median/75th/95th/99th consumer latency: 19/38/130/163/174 ms
+	id: con-test, time 6.001 s, sent: 1771 msg/s, received: 3517 msg/s, min/median/75th/95th/99th consumer latency: 35/95/159/174/180 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 30978 msg/s
+	id: con-test, receiving rate avg: 30610 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/41/80/149/169 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 38669 msg/s, received: 37252 msg/s, min/median/75th/95th/99th consumer latency: 1/31/43/59/79 ms
+	id: con-test, time 2.001 s, sent: 47775 msg/s, received: 44289 msg/s, min/median/75th/95th/99th consumer latency: 1/43/56/87/96 ms
+	id: con-test, time 3.001 s, sent: 46198 msg/s, received: 49729 msg/s, min/median/75th/95th/99th consumer latency: 16/52/67/91/101 ms
+	id: con-test, time 4.001 s, sent: 52623 msg/s, received: 48619 msg/s, min/median/75th/95th/99th consumer latency: 20/51/73/106/126 ms
+	id: con-test, time 5.001 s, sent: 48002 msg/s, received: 46662 msg/s, min/median/75th/95th/99th consumer latency: 20/69/102/131/143 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 41982 msg/s
+	id: con-test, receiving rate avg: 41702 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/51/71/113/137 ms
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 39070 msg/s, received: 35466 msg/s, min/median/75th/95th/99th consumer latency: 1/22/39/58/70 ms
+	id: con-test, time 2.001 s, sent: 54713 msg/s, received: 51287 msg/s, min/median/75th/95th/99th consumer latency: 8/70/98/132/172 ms
+	id: con-test, time 3.001 s, sent: 55963 msg/s, received: 51425 msg/s, min/median/75th/95th/99th consumer latency: 73/136/165/179/212 ms
+	id: con-test, time 4.001 s, sent: 55401 msg/s, received: 55493 msg/s, min/median/75th/95th/99th consumer latency: 93/182/197/231/240 ms
+	id: con-test, time 5.001 s, sent: 27445 msg/s, received: 29999 msg/s, min/median/75th/95th/99th consumer latency: 130/200/219/238/268 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 28133 msg/s
+	id: con-test, receiving rate avg: 27950 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/137/180/233/3743 ms

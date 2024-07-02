@@ -1,0 +1,380 @@
+Production  NLRTM1
+
+Tests performed:
+	Testing number of hobs between the docker20 and target 01 node using traceroute like:
+		traceroute -m 5 hostname
+
+	Testing the performance of 3 different tests with 2 different message sizes (-s xxx), so 6 tests and running them 2 times.
+		A single publisher without publisher confirms, two consumers (each receiving a copy of every message) that use automatic 
+		acknowledgement mode and a single queue named “throughput-test-x1-y2”. Publishers will publish as quickly as 
+		possible, without any rate limiting
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-01" -a --id "test 01-n" -s 1024 -z 60 --use-millis
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-02" -a --id "test 02-n" -s 512 -z 60 --use-millis
+
+		This modification will use 2 publishers and 4 consumers, typically yielding higher throughput given enough CPU 
+		cores on the machine and RabbitMQ nodes:
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 2 -y 4 -u "throughput-test-03" -a --id "test 03-n" -s 1024 -z 60 --use-millis
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 2 -y 4 -u "throughput-test-04" -a --id "test 04-n" -s 512 -z 60 --use-millis
+
+		This modification switches consumers to manual acknowledgements
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-05" --id "test 05-n" -s 1024 -z 60 --use-millis
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "throughput-test-06" --id "test 06-n" -s 512 -z 60 --use-millis
+
+	Test every cluster node with a short test
+		java -jar perf-test-latest.jar --uri amqps://perftest:perftest@nlrtm1-rabbitodp01x.sys.i3d.network:5671 -x 1 -y 2 -u "connection-test" -a --id "con-test" -s 1024 -z 5 --use-millis 
+
+Results:
+	traceroute to nlrtm1-rabbitodp01p.sys.i3d.network (213.163.84.204), 5 hops max, 60 byte packets
+	 1  hosted-by.i3d.net (188.122.92.200)  0.169 ms  0.122 ms  0.121 ms
+	 2  te1-1.gw.rtd.i3d.net (188.122.94.1)  28.282 ms  49.789 ms  49.727 ms
+	 3  nlrtm1-rt002i.i3d.net (109.200.218.246)  7.745 ms  7.738 ms nlrtm1-rt001i.i3d.net (109.200.218.164)  7.693 ms
+	 4  * * *
+	 5  * * *
+
+	2023-11-26 15:49:16 Starting test 01-1
+	id: test 01-1, sending rate avg: 38640 msg/s
+	id: test 01-1, receiving rate avg: 38611 msg/s
+	id: test 01-1, consumer latency min/median/75th/95th/99th 6/93/139/264/806 ms
+	2023-11-26 15:50:31 Starting test 02-1
+	id: test 02-1, sending rate avg: 36516 msg/s
+	id: test 02-1, receiving rate avg: 36331 msg/s
+	id: test 02-1, consumer latency min/median/75th/95th/99th 1/208/265/350/757 ms
+	2023-11-26 15:51:48 Starting test 03-1
+	id: test 03-1, sending rate avg: 30148 msg/s
+	id: test 03-1, receiving rate avg: 29905 msg/s
+	id: test 03-1, consumer latency min/median/75th/95th/99th 9/304/417/1332/3065 ms
+	2023-11-26 15:53:05 Starting test 04-1
+	id: test 04-1, sending rate avg: 72882 msg/s
+	id: test 04-1, receiving rate avg: 72830 msg/s
+	id: test 04-1, consumer latency min/median/75th/95th/99th 10/231/351/920/1214 ms
+	2023-11-26 15:54:20 Starting test 05-1
+	id: test 05-1, sending rate avg: 35407 msg/s
+	id: test 05-1, receiving rate avg: 35396 msg/s
+	id: test 05-1, consumer latency min/median/75th/95th/99th 8/184/450/1017/1665 ms
+	2023-11-26 15:55:34 Starting test 06-1
+	id: test 06-1, sending rate avg: 38081 msg/s
+	id: test 06-1, receiving rate avg: 38081 msg/s
+	id: test 06-1, consumer latency min/median/75th/95th/99th 3/600/850/1082/1306 ms
+
+	2023-11-26 15:56:49 Starting test 01-2
+	id: test 01-2, sending rate avg: 36865 msg/s
+	id: test 01-2, receiving rate avg: 36749 msg/s
+	id: test 01-2, consumer latency min/median/75th/95th/99th 3/89/138/240/292 ms
+	2023-11-26 15:58:06 Starting test 02-2
+	id: test 02-2, sending rate avg: 48559 msg/s
+	id: test 02-2, receiving rate avg: 48342 msg/s
+	id: test 02-2, consumer latency min/median/75th/95th/99th 1/169/193/229/4154 ms
+	2023-11-26 15:59:23 Starting test 03-2
+	id: test 03-2, sending rate avg: 28494 msg/s
+	id: test 03-2, receiving rate avg: 28479 msg/s
+	id: test 03-2, consumer latency min/median/75th/95th/99th 12/90/223/2022/2272 ms
+	2023-11-26 16:00:36 Starting test 04-2
+	id: test 04-2, sending rate avg: 58710 msg/s
+	id: test 04-2, receiving rate avg: 58692 msg/s
+	id: test 04-2, consumer latency min/median/75th/95th/99th 1/260/378/1657/1748 ms
+	2023-11-26 16:01:51 Starting test 05-2
+	id: test 05-2, sending rate avg: 26823 msg/s
+	id: test 05-2, receiving rate avg: 26823 msg/s
+	id: test 05-2, consumer latency min/median/75th/95th/99th 17/279/581/2254/2658 ms
+	2023-11-26 16:03:04 Starting test 06-2
+	id: test 06-2, sending rate avg: 39539 msg/s
+	id: test 06-2, receiving rate avg: 39543 msg/s
+	id: test 06-2, consumer latency min/median/75th/95th/99th 9/388/770/1687/3802 ms
+
+	2023-11-26 16:04:19 Connection test nlrtm1-rabbitodp01p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.002 s, sent: 40861 msg/s, received: 37938 msg/s, min/median/75th/95th/99th consumer latency: 1/26/57/92/197 ms
+	id: con-test, time 2.002 s, sent: 51019 msg/s, received: 48084 msg/s, min/median/75th/95th/99th consumer latency: 17/53/107/218/280 ms
+	id: con-test, time 3.002 s, sent: 52702 msg/s, received: 49617 msg/s, min/median/75th/95th/99th consumer latency: 48/130/168/271/286 ms
+	id: con-test, time 4.002 s, sent: 21585 msg/s, received: 23729 msg/s, min/median/75th/95th/99th consumer latency: 105/195/225/290/303 ms
+	id: con-test, time 5.002 s, sent: 25758 msg/s, received: 26961 msg/s, min/median/75th/95th/99th consumer latency: 24/78/1109/1180/1194 ms
+	id: con-test, time 6.002 s, sent: 2221 msg/s, received: 6697 msg/s, min/median/75th/95th/99th consumer latency: 51/63/66/160/178 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 29918 msg/s
+	id: con-test, receiving rate avg: 29745 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/95/156/286/1163 ms
+	2023-11-26 16:04:27 Connection test nlrtm1-rabbitodp02p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 36818 msg/s, received: 35876 msg/s, min/median/75th/95th/99th consumer latency: 1/13/15/21/39 ms
+	id: con-test, time 2.001 s, sent: 69334 msg/s, received: 67107 msg/s, min/median/75th/95th/99th consumer latency: 11/22/28/45/49 ms
+	id: con-test, time 3.001 s, sent: 70154 msg/s, received: 67401 msg/s, min/median/75th/95th/99th consumer latency: 17/36/53/66/81 ms
+	id: con-test, time 4.001 s, sent: 61404 msg/s, received: 56167 msg/s, min/median/75th/95th/99th consumer latency: 64/170/211/238/243 ms
+	id: con-test, time 5.001 s, sent: 39372 msg/s, received: 47286 msg/s, min/median/75th/95th/99th consumer latency: 63/137/154/197/236 ms
+	id: con-test, time 6.001 s, sent: 1.0 msg/s, received: 3253 msg/s, min/median/75th/95th/99th consumer latency: 66/95/108/123/127 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 40510 msg/s
+	id: con-test, receiving rate avg: 40510 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 3/44/129/218/238 ms
+	2023-11-26 16:04:35 Connection test nlrtm1-rabbitodp03p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.013 s, sent: 43082 msg/s, received: 41764 msg/s, min/median/75th/95th/99th consumer latency: 1/15/20/32/49 ms
+	id: con-test, time 2.001 s, sent: 63289 msg/s, received: 60513 msg/s, min/median/75th/95th/99th consumer latency: 15/38/51/72/78 ms
+	id: con-test, time 3.001 s, sent: 58032 msg/s, received: 59182 msg/s, min/median/75th/95th/99th consumer latency: 19/62/86/103/111 ms
+	id: con-test, time 4.001 s, sent: 59851 msg/s, received: 59844 msg/s, min/median/75th/95th/99th consumer latency: 21/82/98/146/161 ms
+	id: con-test, time 5.001 s, sent: 55403 msg/s, received: 56295 msg/s, min/median/75th/95th/99th consumer latency: 18/40/52/75/109 ms
+	id: con-test, time 6.001 s, sent: 1143 msg/s, received: 2849 msg/s, min/median/75th/95th/99th consumer latency: 19/40/53/64/67 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 42768 msg/s
+	id: con-test, receiving rate avg: 42718 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/49/75/119/149 ms
+	2023-11-26 16:04:43 Connection test nlrtm1-rabbitodp04p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 40839 msg/s, received: 38502 msg/s, min/median/75th/95th/99th consumer latency: 1/26/60/100/118 ms
+	id: con-test, time 2.001 s, sent: 50337 msg/s, received: 46635 msg/s, min/median/75th/95th/99th consumer latency: 11/76/115/167/197 ms
+	id: con-test, time 3.001 s, sent: 45878 msg/s, received: 47715 msg/s, min/median/75th/95th/99th consumer latency: 86/147/175/236/261 ms
+	id: con-test, time 4.001 s, sent: 27616 msg/s, received: 25298 msg/s, min/median/75th/95th/99th consumer latency: 40/106/127/195/246 ms
+	id: con-test, time 5.001 s, sent: 32384 msg/s, received: 36105 msg/s, min/median/75th/95th/99th consumer latency: 20/70/133/1081/1136 ms
+	id: con-test, time 6.001 s, sent: 3638 msg/s, received: 4812 msg/s, min/median/75th/95th/99th consumer latency: 31/55/76/198/203 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 32752 msg/s
+	id: con-test, receiving rate avg: 32487 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/86/141/242/1080 ms
+	2023-11-26 16:04:50 Connection test nlrtm1-rabbitodp05p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.000 s, sent: 25292 msg/s, received: 24495 msg/s, min/median/75th/95th/99th consumer latency: 1/17/26/56/72 ms
+	id: con-test, time 2.000 s, sent: 44092 msg/s, received: 43795 msg/s, min/median/75th/95th/99th consumer latency: 9/23/32/63/99 ms
+	id: con-test, time 3.000 s, sent: 64544 msg/s, received: 62911 msg/s, min/median/75th/95th/99th consumer latency: 6/26/41/96/122 ms
+	id: con-test, time 4.001 s, sent: 60025 msg/s, received: 55861 msg/s, min/median/75th/95th/99th consumer latency: 19/37/88/130/146 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 32589 msg/s
+	id: con-test, receiving rate avg: 32518 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/29/54/135/2052 ms
+	2023-11-26 16:04:57 Connection test nlrtm1-rabbitodp06p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 26327 msg/s, received: 25514 msg/s, min/median/75th/95th/99th consumer latency: 1/18/25/58/75 ms
+	id: con-test, time 2.001 s, sent: 46125 msg/s, received: 45268 msg/s, min/median/75th/95th/99th consumer latency: 14/24/29/51/57 ms
+	id: con-test, time 3.001 s, sent: 58883 msg/s, received: 56663 msg/s, min/median/75th/95th/99th consumer latency: 15/34/52/93/145 ms
+	id: con-test, time 4.001 s, sent: 62712 msg/s, received: 59347 msg/s, min/median/75th/95th/99th consumer latency: 18/36/87/115/126 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 33351 msg/s
+	id: con-test, receiving rate avg: 33138 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 2/30/47/122/1820 ms
+	2023-11-26 16:05:05 Connection test nlrtm1-rabbitodp07p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.002 s, sent: 47412 msg/s, received: 43427 msg/s, min/median/75th/95th/99th consumer latency: 1/16/36/57/88 ms
+	id: con-test, time 2.003 s, sent: 72246 msg/s, received: 71341 msg/s, min/median/75th/95th/99th consumer latency: 13/29/47/98/118 ms
+	id: con-test, time 3.002 s, sent: 37161 msg/s, received: 36154 msg/s, min/median/75th/95th/99th consumer latency: 22/68/99/161/189 ms
+	id: con-test, time 5.002 s, sent: 30516 msg/s, received: 32065 msg/s, min/median/75th/95th/99th consumer latency: 16/32/55/1540/1624 ms
+	id: con-test, time 6.002 s, sent: 1363 msg/s, received: 3119 msg/s, min/median/75th/95th/99th consumer latency: 25/42/46/161/190 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 34287 msg/s
+	id: con-test, receiving rate avg: 34123 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/31/60/151/1577 ms
+	2023-11-26 16:05:12 Connection test nlrtm1-rabbitodp08p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 38410 msg/s, received: 36946 msg/s, min/median/75th/95th/99th consumer latency: 1/16/30/62/82 ms
+	id: con-test, time 2.001 s, sent: 50909 msg/s, received: 50582 msg/s, min/median/75th/95th/99th consumer latency: 10/51/66/109/119 ms
+	id: con-test, time 3.001 s, sent: 52125 msg/s, received: 51144 msg/s, min/median/75th/95th/99th consumer latency: 15/48/61/84/96 ms
+	id: con-test, time 4.001 s, sent: 58704 msg/s, received: 53913 msg/s, min/median/75th/95th/99th consumer latency: 19/61/85/121/131 ms
+	id: con-test, time 5.001 s, sent: 56748 msg/s, received: 59749 msg/s, min/median/75th/95th/99th consumer latency: 43/86/110/152/188 ms
+	id: con-test, time 6.001 s, sent: 1306 msg/s, received: 4882 msg/s, min/median/75th/95th/99th consumer latency: 56/66/71/148/159 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 42693 msg/s
+	id: con-test, receiving rate avg: 42530 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/57/81/121/173 ms
+	2023-11-26 16:05:19 Connection test nlrtm1-rabbitodp09p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.004 s, sent: 25885 msg/s, received: 25101 msg/s, min/median/75th/95th/99th consumer latency: 1/22/35/54/76 ms
+	id: con-test, time 2.001 s, sent: 45103 msg/s, received: 43844 msg/s, min/median/75th/95th/99th consumer latency: 2/31/66/101/119 ms
+	id: con-test, time 3.001 s, sent: 69496 msg/s, received: 67639 msg/s, min/median/75th/95th/99th consumer latency: 13/27/41/102/119 ms
+	id: con-test, time 4.001 s, sent: 20447 msg/s, received: 16752 msg/s, min/median/75th/95th/99th consumer latency: 26/52/67/122/131 ms
+	id: con-test, time 5.001 s, sent: 19799 msg/s, received: 23610 msg/s, min/median/75th/95th/99th consumer latency: 35/77/1454/1528/1550 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 32505 msg/s
+	id: con-test, receiving rate avg: 32358 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/34/70/162/1501 ms
+	2023-11-26 16:05:26 Connection test nlrtm1-rabbitodp10p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.000 s, sent: 31768 msg/s, received: 31034 msg/s, min/median/75th/95th/99th consumer latency: 1/23/46/68/87 ms
+	id: con-test, time 2.000 s, sent: 44753 msg/s, received: 43897 msg/s, min/median/75th/95th/99th consumer latency: 13/26/31/46/60 ms
+	id: con-test, time 3.000 s, sent: 63815 msg/s, received: 61423 msg/s, min/median/75th/95th/99th consumer latency: 16/31/60/95/131 ms
+	id: con-test, time 4.001 s, sent: 31325 msg/s, received: 28243 msg/s, min/median/75th/95th/99th consumer latency: 15/52/103/137/147 ms
+	id: con-test, time 5.001 s, sent: 4099 msg/s, received: 4425 msg/s, min/median/75th/95th/99th consumer latency: 1516/1540/1561/1610/1617 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 30416 msg/s
+	id: con-test, receiving rate avg: 30104 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/29/58/139/1606 ms
+	2023-11-26 16:05:33 Connection test nlrtm1-rabbitodp11p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 49882 msg/s, received: 49057 msg/s, min/median/75th/95th/99th consumer latency: 1/15/21/38/44 ms
+	id: con-test, time 2.000 s, sent: 77276 msg/s, received: 75091 msg/s, min/median/75th/95th/99th consumer latency: 11/23/31/48/53 ms
+	id: con-test, time 3.000 s, sent: 78284 msg/s, received: 73956 msg/s, min/median/75th/95th/99th consumer latency: 25/79/96/108/111 ms
+	id: con-test, time 4.000 s, sent: 68594 msg/s, received: 65341 msg/s, min/median/75th/95th/99th consumer latency: 39/110/125/140/152 ms
+	id: con-test, time 5.001 s, sent: 4907 msg/s, received: 7907 msg/s, min/median/75th/95th/99th consumer latency: 108/124/129/138/144 ms
+	id: con-test, time 6.001 s, sent: 1.0 msg/s, received: 6260 msg/s, min/median/75th/95th/99th consumer latency: 1065/1097/1112/1130/1134 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 46052 msg/s
+	id: con-test, receiving rate avg: 45831 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/43/98/136/1096 ms
+	2023-11-26 16:05:41 Connection test nlrtm1-rabbitodp12p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 37925 msg/s, received: 36687 msg/s, min/median/75th/95th/99th consumer latency: 1/13/22/47/66 ms
+	id: con-test, time 2.001 s, sent: 56774 msg/s, received: 53144 msg/s, min/median/75th/95th/99th consumer latency: 13/25/40/59/86 ms
+	id: con-test, time 3.001 s, sent: 62711 msg/s, received: 61229 msg/s, min/median/75th/95th/99th consumer latency: 14/51/76/104/115 ms
+	id: con-test, time 4.001 s, sent: 52954 msg/s, received: 56906 msg/s, min/median/75th/95th/99th consumer latency: 18/49/72/105/122 ms
+	id: con-test, time 5.001 s, sent: 60472 msg/s, received: 56106 msg/s, min/median/75th/95th/99th consumer latency: 24/58/79/105/117 ms
+	id: con-test, time 6.001 s, sent: 1142 msg/s, received: 4335 msg/s, min/median/75th/95th/99th consumer latency: 79/98/114/136/138 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 36840 msg/s
+	id: con-test, receiving rate avg: 36356 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/42/68/97/117 ms
+	2023-11-26 16:05:49 Connection test nlrtm1-rabbitodp13p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 49674 msg/s, received: 46134 msg/s, min/median/75th/95th/99th consumer latency: 1/21/49/94/105 ms
+	id: con-test, time 2.000 s, sent: 58894 msg/s, received: 59433 msg/s, min/median/75th/95th/99th consumer latency: 6/56/81/106/120 ms
+	id: con-test, time 3.001 s, sent: 54844 msg/s, received: 51541 msg/s, min/median/75th/95th/99th consumer latency: 16/67/91/115/146 ms
+	id: con-test, time 4.000 s, sent: 1884 msg/s, received: 0 msg/s, min/median/75th/95th/99th consumer latency: 0/0/0/0/0 ms
+	id: con-test, time 5.000 s, sent: 14507 msg/s, received: 19606 msg/s, min/median/75th/95th/99th consumer latency: 21/112/1857/1944/1966 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 33132 msg/s
+	id: con-test, receiving rate avg: 32760 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/54/85/143/1928 ms
+	2023-11-26 16:05:56 Connection test nlrtm1-rabbitodp14p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 43602 msg/s, received: 42364 msg/s, min/median/75th/95th/99th consumer latency: 1/17/23/44/75 ms
+	id: con-test, time 2.000 s, sent: 63430 msg/s, received: 57327 msg/s, min/median/75th/95th/99th consumer latency: 12/39/60/79/94 ms
+	id: con-test, time 3.001 s, sent: 50439 msg/s, received: 55463 msg/s, min/median/75th/95th/99th consumer latency: 28/84/114/159/168 ms
+	id: con-test, time 4.001 s, sent: 30211 msg/s, received: 30152 msg/s, min/median/75th/95th/99th consumer latency: 28/66/81/113/130 ms
+	id: con-test, time 5.000 s, sent: 45808 msg/s, received: 46268 msg/s, min/median/75th/95th/99th consumer latency: 25/59/85/169/188 ms
+	id: con-test, time 6.001 s, sent: 1086 msg/s, received: 2997 msg/s, min/median/75th/95th/99th consumer latency: 26/40/57/65/70 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 33505 msg/s
+	id: con-test, receiving rate avg: 33505 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 4/52/75/139/173 ms
+	2023-11-26 16:06:04 Connection test nlrtm1-rabbitodp15p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.000 s, sent: 52440 msg/s, received: 47766 msg/s, min/median/75th/95th/99th consumer latency: 1/17/23/61/70 ms
+	id: con-test, time 2.000 s, sent: 62245 msg/s, received: 63247 msg/s, min/median/75th/95th/99th consumer latency: 15/41/55/75/86 ms
+	id: con-test, time 3.000 s, sent: 63915 msg/s, received: 56190 msg/s, min/median/75th/95th/99th consumer latency: 20/169/230/277/325 ms
+	id: con-test, time 4.000 s, sent: 52488 msg/s, received: 53153 msg/s, min/median/75th/95th/99th consumer latency: 154/224/246/276/299 ms
+	id: con-test, time 5.001 s, sent: 2682 msg/s, received: 2668 msg/s, min/median/75th/95th/99th consumer latency: 156/255/269/1132/1139 ms
+	id: con-test, time 6.001 s, sent: 1.0 msg/s, received: 9440 msg/s, min/median/75th/95th/99th consumer latency: 1132/1197/1223/1236/1252 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 33298 msg/s
+	id: con-test, receiving rate avg: 33112 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/69/213/287/1224 ms
+	2023-11-26 16:06:12 Connection test nlrtm1-rabbitodp16p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 42194 msg/s, received: 37757 msg/s, min/median/75th/95th/99th consumer latency: 1/13/20/55/89 ms
+	id: con-test, time 2.001 s, sent: 52365 msg/s, received: 50996 msg/s, min/median/75th/95th/99th consumer latency: 16/77/106/141/177 ms
+	id: con-test, time 3.001 s, sent: 52068 msg/s, received: 55422 msg/s, min/median/75th/95th/99th consumer latency: 17/86/115/148/177 ms
+	id: con-test, time 4.001 s, sent: 59482 msg/s, received: 55039 msg/s, min/median/75th/95th/99th consumer latency: 16/72/97/118/169 ms
+	id: con-test, time 5.001 s, sent: 7360 msg/s, received: 8091 msg/s, min/median/75th/95th/99th consumer latency: 81/111/138/161/168 ms
+	id: con-test, time 6.001 s, sent: 1.0 msg/s, received: 5455 msg/s, min/median/75th/95th/99th consumer latency: 1454/1485/1844/1856/1861 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 31873 msg/s
+	id: con-test, receiving rate avg: 31810 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/71/102/158/1821 ms
+	2023-11-26 16:06:20 Connection test nlrtm1-rabbitodp17p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 47851 msg/s, received: 46804 msg/s, min/median/75th/95th/99th consumer latency: 1/17/22/53/67 ms
+	id: con-test, time 2.001 s, sent: 67991 msg/s, received: 59092 msg/s, min/median/75th/95th/99th consumer latency: 9/57/94/125/157 ms
+	id: con-test, time 3.001 s, sent: 64728 msg/s, received: 63089 msg/s, min/median/75th/95th/99th consumer latency: 72/121/160/206/241 ms
+	id: con-test, time 4.001 s, sent: 53235 msg/s, received: 54230 msg/s, min/median/75th/95th/99th consumer latency: 106/181/221/320/357 ms
+	id: con-test, time 5.001 s, sent: 17503 msg/s, received: 19595 msg/s, min/median/75th/95th/99th consumer latency: 116/169/214/272/289 ms
+	id: con-test, time 6.001 s, sent: 1.0 msg/s, received: 5588 msg/s, min/median/75th/95th/99th consumer latency: 1132/1173/1189/1206/1210 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 31752 msg/s
+	id: con-test, receiving rate avg: 31385 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 2/116/167/256/1180 ms
+	2023-11-26 16:06:29 Connection test nlrtm1-rabbitodp18p.sys.i3d.network:5671
+	id: con-test, starting consumer #0
+	id: con-test, starting consumer #0, channel #0
+	id: con-test, starting consumer #1
+	id: con-test, starting consumer #1, channel #0
+	id: con-test, starting producer #0
+	id: con-test, starting producer #0, channel #0
+	id: con-test, time 1.001 s, sent: 56026 msg/s, received: 49485 msg/s, min/median/75th/95th/99th consumer latency: 1/33/86/126/137 ms
+	id: con-test, time 2.000 s, sent: 73299 msg/s, received: 71189 msg/s, min/median/75th/95th/99th consumer latency: 34/66/80/114/141 ms
+	id: con-test, time 3.001 s, sent: 29250 msg/s, received: 30689 msg/s, min/median/75th/95th/99th consumer latency: 86/139/156/188/208 ms
+	id: con-test, time 4.001 s, sent: 13853 msg/s, received: 12335 msg/s, min/median/75th/95th/99th consumer latency: 74/1470/1483/1532/1551 ms
+	id: con-test, time 5.000 s, sent: 64736 msg/s, received: 62184 msg/s, min/median/75th/95th/99th consumer latency: 102/162/178/211/234 ms
+	test stopped (Reached time limit)
+	id: con-test, sending rate avg: 40584 msg/s
+	id: con-test, receiving rate avg: 40093 msg/s
+	id: con-test, consumer latency min/median/75th/95th/99th 1/111/159/202/1485 ms

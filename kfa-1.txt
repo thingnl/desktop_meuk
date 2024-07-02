@@ -1,0 +1,1563 @@
+## kfa day 1
+
+Instructors
+	Fabian Met
+	Kevin Tijssen
+
+Want to learn
+	- Networking (nodeip, clusterip, loadbalancers)
+	- Persistant storage
+	- Config maps
+	- RBAC
+	- Git intergration
+
+Agenda
+	Day 1:
+		Containers
+		Pods
+		kubectl
+		manage pods
+		
+	Day 2:
+		Build a clusterip
+		
+	Day 3:
+		k8s layout
+		secrets
+		
+	Day 4:
+		Security
+		Storage
+
+
+K8s,
+	Bunch of fixed lego blocks
+	
+	What is an application
+		- Internals (what the devs create_
+		- Libraries, what the revs use
+		- Runtime, like Python
+		- Kernel, API to the hardware
+		- Storage
+		- Networking
+
+	What is an container
+		- Application, but without:
+			Storage
+			Networking
+			Kernel
+			
+	https://12factor,net		=> Read this to be able to talk to developers!
+	
+	-
+
+	Training environment
+		https://play.instruqt.com/fullstaq/invite/whblro3bh5pd
+	
+	Empty container	
+		FROM scratch (in your Dockerfile)
+
+	Dive, look into containers
+		dive ubuntu
+		
+	Check container	
+		trivy ubuntu
+		
+	
+	
+	
+	
+	What is a pod
+		Only object to run containers
+		Only does stop/start containers
+		Nearly everything is a pod
+		Pods are meant to die....
+		
+
+	Ignore this...
+		Your Kubernetes cluster is ready. Use this token to access the Kubernetes Dashboard:
+		eyJhbGciOiJSUzI1NiIsImtpZCI6IkNwNkxUZlRLaVhGckFaMlFVUUFXMEhpWjZvR3d5T0hOMGtXV0xPSFVhQm8ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXhtbXY1Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI4OWM0ZGExZS0wNjA3LTQxNzAtYTA3Zi1mNmU3NDQzM2U3ZTgiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.BqMnfXd-mdR-sPQ_V6j8pV2Iayol8Wnm53_oHTrcKvMU9hsdA9PWJYS679jrke6u-RGUAmvGFWCKhkIT2x-IpOj5JzTbaGjPlx0lfOv4J3KByzi7AxPVld10XAZzp5U9BGcQ4x_uXkLVBkxYZg5aZkSMwLYWAXs-t-bP3lpSDAmTP7XJ33DTfhoCD4LgolpmoKtzXvKVc5FrWxjnH7I82T9pRneZVGIsXg3vctSIIi4-XSg5Y97s6ys_yYpWuskunlZeJSv3iBPR35iUCTE5t4tAjB8GgoFtMITsCc1D4y9gwP1LowHJRa5zfJ_nYqdxXzRvawEM5eQSX1U-KEy1bg
+
+		Copy/paste with Ctrl-Insert/Shift-Insert. You can also find this token at /root/dashboard-token.txt
+		
+	
+	k config set-context --current --namespace=student
+	
+	k get ns student -o yaml
+		apiVersion: v1
+		kind: Namespace
+		metadata:
+		  creationTimestamp: "2023-09-25T11:06:18Z"
+		  labels:
+			kubernetes.io/metadata.name: student
+		  name: student
+		  resourceVersion: "1118"
+		  uid: dfa456dc-4c1f-44e9-af34-e8d3ade53d0e
+		spec:
+		  finalizers:
+		  - kubernetes
+		status:
+		  phase: Active
+			
+	Describe and -o yaml are the same information, but different format. Yaml can also be used as input for an apply
+	
+	exec:
+		k -n student exec -it pod -- /bin/sh
+		
+	logs:
+		k -n student logs pod
+
+	Podname:
+		has to be unique within the namespace
+	Containername:
+		has to be unique within the podname
+
+	Mandatory least config pod:
+		apiVersion: v1
+		kind: Pod
+		metadata:	
+		  name: podname
+		spec:  
+		  containers:
+		    name: containername
+			image: imagetouse
+	
+	Alias
+		alias ks="kubectl -n student"
+	
+	Workshops
+		Create a NS
+			k create ns student
+		Set namespace
+			k config set-context --current --namespace=student
+
+		Start a pod
+			k apply -f mywebserver.yaml
+			
+
+
+		Get logs
+			k logs nginx-example > /workspace/read-pod-logs/log-output.txt
+
+		Git pods IP
+			k get pods -o wide
+				NAME            READY   STATUS    RESTARTS   AGE   IP           NODE   NOMINATED NODE   READINESS GATES
+				nginx-example   1/1     Running   0          10m   10.42.0.25   main   <none>           <none>
+
+		labels
+			k -n kube-system get pods --show-labels
+			
+			k get pods -n kube-system -l label=value
+
+
+
+		Get names with specific version
+			pod/sock-v2-58ff7c9976-mxf44
+			pod/sock-v2-58ff7c9976-8twnc
+			pod/sock-v2-58ff7c9976-jjznl		
+
+			k get pods -n sock --show-labels
+			k get pods -n sock -l version=v2
+			k get pods -n sock -o name -l version=v2
+			k get pods -n sock -o name -l version=v2 > /workspace/using-labels/podnames.txt
+	
+			But this is not by label. just by name
+
+		Get from All namespaces
+			k get pods -A
+
+		Get pods with wrong label
+			k get pods -A -o name -l version=feature-mistake > /workspace/mistakes/badpods.txt
+
+
+	Pod controllers
+		
+		Do one thing and do it well
+			
+
+		Replica sets
+			Replica sets get an amount and an template
+
+		Deployment
+			Deployment ONLY manages replica sets
+		
+			Deployment history
+				
+			Of no example is provided:
+				Go to documentation
+				Deployment
+				go to the bottom
+				copy/past in shell
+				
+			k get pots --watch
+			or watch -n 1 kubectl get pods
+			
+			
+		Deamon sets
+			Deploys 1 of every pod per machine
+			
+
+Day 2
+	Kubernetes Internals
+		Api-server
+			Most important. Central point of kubernetes setup
+			Nodes are the same
+			Nodes have only 2 processes running (kubelet & k-proxy)
+			Control Plane, can be anywhere in the cluster. Does not need to be a specific node.
+			
+			Entrypoint for everything k8s related
+			Scales horizontally, just run more when load increases
+		
+		
+		Cloud controller manager (optional)
+			Several controllers into one binary
+				Node controller: checking the cloud provider for node status in the cloud
+				Route controller: for setting up routers in the underlaying cloud infrastructure
+				Service controller: Managing cloud load balancers
+		
+		Controller manager
+			One binary controlling 4 controllers
+				Node controller, keep node status up to date
+				Replication Controller, maintains the correct number of pods for pod controllers
+				Endpoints controller, polulates the endpoints object so services and pods get connected
+				Service accounts & token controllers: create default accounts and api access tokens for new namespaces
+		
+		etcd
+			Memory of Kubernetes
+			Consistent HA key value store
+			When you talk to the API, it returns or stores data from or to etcd
+		
+		kublet
+			Starts and manages containers based on pod specs
+			Tells API service what status is
+		
+		kube-proxy
+			Maintains network rules on nodes
+		
+		Schedular
+			What happens when you do kubectl apply pod.yaml
+			Schedules newly created pods to nodes
+			Will select nodes based on what fits from resources/storage/other limits
+		
+		Container runtime
+			Any type of supported runtime such as cri-o, Docker (no longer supported) and containerd
+		
+		Control plane
+		
+		Node
+		
+		
+	For today
+		3 nodes: 1 control plane, 2 workers
+		
+		Installing kubeadm to manage a cluster!
+			To install Kubernetes we will use Kubeadm. Let's install!
+
+			To finish this challenge do the following:
+
+			make sure kubeadm, kubelet and kubectl are installed on all nodes
+			The versions needs to be pinned with version 1.22.8-00
+			The packages need to be marked as hold. apt-mark hold <package>
+
+			To install a specific version, see this example: kubectl=1.22.8-00
+			(sudo apt install package_name=package_version)
+			(sudo apt list --all-versions package_name)
+
+			https://pimylifeup.com/ubuntu-uninstall-package/#:~:text=All%20you%20need%20to%20do,y%20%E2%80%9D%20to%20confirm%20the%20removal.
+			For now, use the deprecated Google-hosted repository!
+
+			6  apt-get install -y apt-transport-https ca-certificates curl
+			7  curl -fsSL https://dl.k8s.io/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+			8  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+			9  apt-get update
+		   10  apt list --all-versions kubeadm
+		   11  apt-get install -y kubelet=1.22.8-00 kubeadm=1.22.8-00 kubectl=1.22.8-00
+		   12  apt-get install -y kubeadm=1.22.8-00
+		   13  apt-get install -y kubectl=1.22.8-00
+		   14  apt-mark hold kubeadm kubelet kubectl
+		   15  history
+		   16  kubectl
+		   17  kubectl -v
+		   18  kubectl --help
+		   19  kubectl version
+		   20  apt remove kubectl
+		   21  apt-get -t=1.22.8-00 install kubectl
+		   22  apt-get -t=1.22.8-00 install kubectl kubeadm kubelet
+		   23  apt remove kubectl kubeadm kubelet
+		   24  apt-get install -y kubelet=1.22.8-00 kubeadm=1.22.8-00 kubectl=1.22.8-00
+		   25  kubectl version
+		   26  apt-mark hold kubeadm kubelet kubectl			
+
+			Versions are holded so during a system update, they are not included in the update. (so, fixed version)
+
+
+		Bootstrapping our cluster!
+			To setup Kubernetes we will use Kubeadm. Let's start!
+
+			To finish this challenge do the following:
+
+			Bootstrap your cluster with --pod-network-cidr=10.244.0.0/16
+			install the Flannel CNI: https://github.com/flannel-io/flannel/releases/download/v0.21.4/kube-flannel.yml
+			You can install the Flannel CNI YAML directly by running kubectl apply -f <url>
+
+			(Choosing network: When in doublt, USE FLANEL)
+			
+			kubeadm init --pod-network-cidr=10.244.0.0/16
+			
+			Generate new token (adding more nodes after 24 hours)
+				kubeadm token create --print-join-command
+
+			kubectl apply -f http://<flanel-link> to install network layer (CNI)
+
+			https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#initializing-your-control-plane-node
+
+			Only on control node:
+			   28  kubeadm init --pod-network-cidr=10.244.0.0/16
+				  mkdir -p $HOME/.kube
+				  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+				  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+				kubectl get nodes
+					NAME       STATUS     ROLES                  AGE     VERSION
+					main       NotReady   control-plane,master   3m15s   v1.22.8
+					worker-1   NotReady   <none>                 10s     v1.22.8
+					worker-2   NotReady   <none>                 3s      v1.22.8
+
+				kubectl apply -f https://github.com/flannel-io/flannel/releases/download/v0.21.4/kube-flannel.yml
+					(git it a minute!)
+
+				kubectl get nodes
+					NAME       STATUS   ROLES                  AGE     VERSION
+					main       Ready    control-plane,master   4m55s   v1.22.8
+					worker-1   Ready    <none>                 110s    v1.22.8
+					worker-2   Ready    <none>                 103s    v1.22.8
+			
+			On worker nodes:
+				kubeadm join 10.5.2.40:6443 --token dxq1by.aihrswrc51zaozjh \
+        --discovery-token-ca-cert-hash sha256:aef09286ecf6ba8c6ba314804fd7df61baeb4b2088a1ca6a29e39e3d22ce95af
+			
+		Control plane is in /var/lib/kubernetes/manifests
+
+	Someone broke your cluster
+		journalctl -xe | grep -i stopped
+		systemctl start kubelet
+		systemctl enable kubelet
+
+	Someone broke your cluster again, but what is it this time?!
+		General pitfalls
+			- API server not running
+			- Read only filesystems
+		
+		nano /var/lib/kubelet/config.yaml
+		systemctl restart kubelet
+		
+
+	Let's upgrade our cluster.
+		https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
+	
+		Time to upgrade our cluster.
+		We are running version 1.22.8-00 right now. Our goal is to upgrade to 1.23.8-00
+		Which parts do you think we need to upgrade? And in which order?
+		Use the manual to upgrade our cluster to 1.23.8-00
+
+		First UPGRADE kubeadm on the control plane
+		second UPGRADE kubelet on the control plane
+		
+		so, on the control plane:
+			apt-mark unhold kubeadm && apt-get update && apt-get install -y kubeadm='1.23.8-00' && apt-mark hold kubeadm
+			kubeadm upgrade plan
+			kubeadm upgrade apply v1.23.8
+
+			apt-mark unhold kubelet kubectl && apt-get update && apt-get install -y kubelet='1.23.8-00' kubectl='1.23.8-00' && apt-mark hold kubelet kubectl
+
+		Then, on the worker nodes:
+			apt-mark unhold kubeadm && apt-get update && apt-get install -y kubeadm='1.23.8-00' && apt-mark hold kubeadm
+			apt-mark unhold kubelet kubectl && apt-get update && apt-get install -y kubelet='1.23.8-00' kubectl='1.23.8-00' && apt-mark hold kubelet kubectl
+
+
+			sudo systemctl daemon-reload
+			sudo systemctl restart kubelet
+
+			kubeadm upgrade node
+
+
+	Etcd Backup
+		(https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
+	
+		Let's backup etcd to be safe.
+		Have a look at this link.
+
+		Etcdctl is already preinstalled and etcd can be reached via https://127.0.0.1:2379
+
+		You will need the following keys:
+
+		cacert "/etc/kubernetes/pki/etcd/ca.crt"
+		cert "/etc/kubernetes/pki/etcd/server.crt"
+		key "/etc/kubernetes/pki/etcd/server.key"
+		Make sure to save the db snapshot to the following path: /workspace/create-etcd-backup/snapshotdb
+		
+		ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379   
+			--cacert=/etc/kubernetes/pki/etcd/ca.crt 
+			--cert=/etc/kubernetes/pki/etcd/server.crt 
+			--key=/etc/kubernetes/pki/etcd/server.key   
+			snapshot save /workspace/create-etcd-backup/snapshotdb
+		
+		2023-09-26 12:55:43.549442 I | clientv3: opened snapshot stream; downloading
+			2023-09-26 12:55:43.604071 I | clientv3: completed snapshot read; closing
+			Snapshot saved at /workspace/create-etcd-backup/snapshotdb
+
+	Etcd Backup Restore (to a different directory then the original)
+		(https://discuss.kubernetes.io/t/backup-and-restore-etcd-database/12889)
+
+		To pass, restore this etcd snapshot to the cluster.
+		/workspace/restore-etcd-backup/snapshotdb
+		Check the kubernetes docs for tips!	
+		
+		
+	stop etcd first
+		cd /etc/kubernetes/manifests
+		mv etcd.yaml ../
+		mv kube-apiserver.yaml ../	
+
+		ETCDCTL_API=3 etcdctl --endpoints 10.2.0.9:2379 --data-dir /var/lib/etcd-restore snapshot restore /workspace/restore-etcd-backup/snapshotdb 
+
+		cd /etc/kubernetes/
+		Update etcd.yaml and replace datadir on line (NEAR END OF FILE)
+		  - hostPath:
+			  path: /var/lib/etcd-restore
+
+		mv /etc/kubernetes/etcd.yaml ./manifests/
+		mv /etc/kubernetes/kube-apiserver.yaml ./manifests/
+
+		Verify
+			kubectl get cm -n kube-system
+				NAME                                 DATA   AGE
+				etcd-backup                          0      55m		
+
+	
+	
+	
+Day 3
+	Configuration
+		Configuration in Kuberneters
+			What we have available
+				- Environment variables
+				- config files mounted as storage
+				- Startup parameters (don;t do it)
+
+			Configmaps contain arbitrary data in key Value format	
+		!	(Config maps are ONLY a collection of STRINGS. Variables with a value)
+			
+			Secrets
+				When you want to store something a little bit more securely
+				
+
+		Example config map....
+			apiVersion: v1
+			kind: ConfigMap
+			metadata:
+			  name: game-demo
+			data:
+			  # property-like keys; each key maps to a simple value
+			  player_initial_lives: "3"
+			  ui_properties_file_name: "user-interface.properties"
+
+			  # file-like keys
+			  game.properties: |
+				enemy.types=aliens,monsters
+				player.maximum-lives=5    
+			  user-interface.properties: |
+				color.good=purple
+				color.bad=yellow
+				allow.textmode=true    
+
+			# The | indocates a multiline variable... LIKE A CONFIG FILE.....!
+
+		Using config map values....
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-demo-pod
+spec:
+  containers:
+	- name: demo
+	  image: alpine
+	  command: ["sleep", "3600"]
+	  env:
+		# Define the environment variable
+		- name: PLAYER_INITIAL_LIVES # Notice that the case is different here
+									 # from the key name in the ConfigMap.
+		  valueFrom:
+			configMapKeyRef:
+			  name: game-demo           # The ConfigMap this value comes from.
+			  key: player_initial_lives # The key to fetch.
+		- name: UI_PROPERTIES_FILE_NAME
+		  valueFrom:
+			configMapKeyRef:
+			  name: game-demo
+			  key: ui_properties_file_name
+	  volumeMounts:
+	  - name: config
+		mountPath: "/config"
+		readOnly: true
+  volumes:
+	# You set volumes at the Pod level, then mount them into containers inside that Pod
+	- name: config
+	  configMap:
+		# Provide the name of the ConfigMap you want to mount.
+		name: game-demo
+		# An array of keys from the ConfigMap to create as files
+		items:
+		- key: "game.properties"
+		  path: "game.properties"
+		- key: "user-interface.properties"
+		  path: "user-interface.properties"
+
+		Changing the config map files on the system, DOES NOT CHANGE THE CONFIGMAP
+		Changing the config map... KILL THE PODS USING IT.
+
+      
+		Assignment
+
+		redis-config.yaml
+			apiVersion: v1
+			kind: ConfigMap
+			metadata:
+			  name: redis-config
+			data:
+			  redis.properties: |
+				maxmemory 2mb
+				maxmemory-policy allkeys-lru
+
+		redis.yaml
+			apiVersion: apps/v1
+			kind: Deployment
+			metadata:
+			  name: redis-conf
+			  labels:
+				app: redis
+			spec:
+			  replicas: 3
+			  selector:
+				matchLabels:
+				  app: redis
+			  template:
+				metadata:
+				  labels:
+					app: redis
+				spec:
+				  containers:
+				  - name: redisx
+					image: redis:latest
+					command:
+					  - redis-server
+					  - "/redis-master/redis.conf"  
+					volumeMounts:
+					- name: redis-config
+					  mountPath: "/redis-master"
+				  volumes:
+					- name: redis-config
+					  configMap:
+						name: redis-config
+						items:
+						- key: "redis.properties"
+						  path: "redis.conf"
+
+
+		Configmaps for Environments
+			Use the provided pod at /workspace/configmap/env.yaml
+			Change it for yourself and use environment variables from a configmap.
+			Call the pod env-conf
+
+				env.yaml
+					apiVersion: v1
+					kind: Pod
+					metadata:
+					  name: env-conf
+					  labels:
+						purpose: demonstrate-envars
+					spec:
+					  containers:
+					  - name: envar-demo-container
+						image: gcr.io/google-samples/node-hello:1.0
+						env:
+						  - name: DEMO_GREETING
+							valueFrom:
+							  configMapKeyRef:
+								name: game-demo
+								key: demo_greeting
+						  - name: DEMO_FAREWELL
+							valueFrom:
+							  configMapKeyRef:
+								name: game-demo 
+								key: demo_farewell
+					---
+					apiVersion: v1
+					kind: ConfigMap
+					metadata:
+					  name: game-demo
+					data:
+					  demo_greeting: "Hello from the environment"
+					  demo_farewell: "Such a sweet sorrow"
+
+	Secrets
+		(from WP test)
+apiVersion: v1
+kind: Secret
+metadata:
+	name: mariadb-secret
+type: Opaque
+data:
+  # Encoded value: echo -n 'secret'|base64
+  #   echo -n 'jellyfish' | openssl base64
+  # Decode
+  #   k get secret mariadb-secret -o json | jq '.data | map_values(@base64d)'
+  mariadb-root-password: amVsbHlmaXNo
+
+
+		Assignment
+		(https://kubernetes.io/docs/concepts/configuration/secret/)
+		
+			redis-secret
+				Create a Redis Deployment.
+				Create a Secret from the file in /workspace/secret/redis-config
+
+				Start the redis container with the following command arguments:
+					command:
+					  - redis-server
+					  - "/redis-master/redis.conf"
+				Mount the file called redis-config via secret to /redis-master/redis.conf
+				Name your deployment redis-secret		
+
+
+		cat redis-config | base64
+			bWF4bWVtb3J5IDJtYgptYXhtZW1vcnktcG9saWN5IGFsbGtleXMtbHJ1
+
+
+
+			apiVersion: apps/v1
+			kind: Deployment
+			metadata:
+			  name: redis-secret
+			  labels:
+				app: redis
+			spec:
+			  replicas: 3
+			  selector:
+				matchLabels:
+				  app: redis
+			  template:
+				metadata:
+				  labels:
+					app: redis
+				spec:
+				  containers:
+				  - name: redisx
+					image: redis:latest
+					command:
+					  - redis-server
+					  - "/redis-master/redis.conf"  
+					volumeMounts:
+					- name: redis-config
+					  mountPath: "/redis-master"
+				  volumes:
+					- name: redis-config
+
+
+		Assignment
+			Secrets for Environments
+			Use the provided pod at /workspace/secret/env.yaml
+			Change it for yourself and use environment variables from a secret.
+			Call the pod env-secret
+				env.yaml
+					apiVersion: v1
+					kind: Pod
+					metadata:
+					  name: env-secret
+					  labels:
+						purpose: demonstrate-envars
+					spec:
+					  containers:
+					  - name: envar-demo-container
+						image: gcr.io/google-samples/node-hello:1.0
+						envFrom:
+						  - secretRef:
+							  name: env-secret
+					---
+					apiVersion: v1
+					kind: Secret
+					metadata:
+						name: env-secret
+					data:
+					  DEMO_GREETING: SGVsbG8gZnJvbSB0aGUgZW52aXJvbm1lbnQ=
+					  DEMO_FAREWELL: U3VjaCBhIHN3ZWV0IHNvcnJvdw==
+
+			Verify
+				k exec env-secret -- env
+					DEMO_FAREWELL=Such a sweet sorrow
+					DEMO_GREETING=Hello from the environment
+
+
+	Services
+		LoadBalancing
+			Statefull application
+				State of things are kept by the app that is servered (webserver or app)
+				Easy to create
+			
+			Stateless application
+				State of things are NOT kept by the app. but, for example, in a database
+				Hardw to build, need lots more like table locking and such
+
+
+		Services intro
+			(https://kubernetes.io/docs/concepts/services-networking/service/)
+		
+			Minimal service yaml:
+				apiVersion: v1
+				kind: Service
+				metadata:
+				  name: my-service
+				spec:
+				  selector:
+					app: MyApp
+				  ports:
+					- protocol: TCP
+					  port: 80
+					  targetPort: 80 # On the pod
+
+			DNS only resolves in the cluster
+			Entries created
+				<service name>.<namespace>.svc.cluster.local
+				<service name>.<namespace>
+				<service name> (within the same namespace only)
+			
+			loadbalancer balances based on labels and ports
+
+
+		Assignment
+			Build a clusterIp service for the existing web deployment.
+			Test this with a debug container such as provided in the examples.
+			What is the fully qualified domain name for the new service?
+			What is the shortest possible dns name resolvable for this service?
+			Make sure to let the service listen on 80
+			Name your service web
+			
+
+		svc.yaml
+			apiVersion: v1
+			kind: Service
+			metadata:
+			  name: web
+			spec:
+			  selector:
+				app: web
+			  ports:
+				- protocol: TCP
+				  port: 80
+				  targetPort: 8080
+
+			start debug
+				host web
+					web.default.svc.cluster.local has address something
+
+				curl web.default
+
+
+	How to do blue green deployments
+		Blue/Green deployments
+			One environment online, the second offline, switch by changing label
+			This will allow to test your new production environment before giving to users
+			
+		Canary deployments
+			Comes from the mines....
+			Update in ever increasing size batches
+			Make a new deployment and then start scaling down and up on new and old version deployments
+			
+		
+		Assignment
+			There are two deployments in the default namespace.
+
+			Create a service bluegreen
+			Create a NodePort service with NodePort 30008
+			Forward to the Blue deployment and test.
+			Change the service to forward to the Green Deployment.
+
+
+			bluegreen.yaml 
+				apiVersion: v1
+				kind: Service
+				metadata:
+				  name: bluegreen
+				spec:
+				  type: NodePort
+				  selector:
+					app: blue
+				  ports:
+					- protocol: TCP
+					  port: 80   
+					  targetPort: 80
+					  nodePort: 30008
+
+				apiVersion: v1
+				kind: Service
+				metadata:
+				  name: bluegreen
+				spec:
+				  type: NodePort
+				  selector:
+					app: green
+				  ports:
+					- protocol: TCP
+					  port: 80   
+					  targetPort: 80
+					  nodePort: 30008
+
+			Verify
+				curl localhost:30008
+					<!DOCTYPE html>
+					<html>
+					   <head>
+						  <title>HTML Backgorund Color</title>
+					   </head>
+					   <body style="background-color:green;">
+						  <h1>Products</h1>
+						  <p>We have developed more than 10 products till now.</p>
+					   </body>
+					</html>
+
+
+
+	Reverse proxy functionality a la kubernetes
+		Ingress allows matching on URLS and forwarding to specific services
+		Use ingress-nginx as an image
+		Do NOT use nginx-ingress as it needs a license
+		
+	Ingress example
+		apiVersion: networking.k8s.io/v1
+		kind: Ingress
+		metadata:
+		  name: minimal-ingress
+		spec:
+		  rules:
+			- http:
+				paths:
+				  - path: /testpath
+					pathType: Prefix
+					backend:
+					  service:
+						name: my-service
+						port:
+						  number: 80
+		
+
+
+
+
+	Assignment
+		Ingress
+		Expose the web service you created in the first assignment via ingress.
+		Test that you can reach your application from your terminal.
+		Expose the nginx deployment on a path via ingress and test in the service tab.
+		Name your ingress nginx	
+
+		mine.yaml
+			apiVersion: networking.k8s.io/v1
+			kind: Ingress
+			metadata:
+			  name: nginx
+			spec:
+			  rules:
+				- http:
+					paths:
+					  - path: /whatever
+						pathType: Prefix
+						backend:
+						  service:
+							name: web
+							port:
+							  number: 80
+
+		Verify
+			curl localhost/whatever
+			Hello, whatever!
+
+Making apps more robust
+	(https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+	Lots of features, but not used automagically
+	Run stuff as cattle (shoot it, get a new one), not as pets (spend hours debugging and managing)
+	
+	
+	Health probs
+	Automate everything related ro the lifecyle of the app
+	From the birth to the death and again the rebirth.
+		3 health probes
+			Liveness Probes: Shoots everything
+			Readiness Probe: Creates a timeout, removes it from the stack but it might come back
+			Startup Probe: Wait until some time passed starting the app is up before doing anything (wait call for the other 2)
+			(so multiple probes should be on a app/pod/container)
+
+			Consider running healthchecks on a different port (not 80,443,8080) that is not available from outside
+
+
+	Resource limits
+		Tells k8s what the pod needs
+		Tells k8s what a pod can use maximal
+		memory is in Mibibytes (correct Megabytes)
+		cpu limits are in cores!
+		For CPU, always add more then you need as there is overhead due to the checks.
+		
+		Important for selecting the correct node to spawn pods.
+		
+	Autoscaling
+		There is an autoscaler that can boot/provision additional BM'safe
+		
+	
+		
+	Assignment
+	
+	limits
+		Create a Nginx deployment
+		Make sure the pods have limits
+		Name the deployment limits
+
+		Example
+			---
+			apiVersion: v1
+			kind: Pod
+			metadata:
+			  name: frontend
+			spec:
+			  containers:
+			  - name: app
+				image: images.my-company.example/app:v4
+				resources:
+				  requests:
+					memory: "64Mi"
+					cpu: "250m"
+				  limits:
+					memory: "128Mi"
+					cpu: "500m"
+			  - name: log-aggregator
+				image: images.my-company.example/log-aggregator:v6
+				resources:
+				  requests:
+					memory: "64Mi"
+					cpu: "250m"
+				  limits:
+					memory: "128Mi"
+					cpu: "500m"
+
+		limits.yaml
+			apiVersion: apps/v1
+			kind: Deployment
+			metadata:
+			  name: limits 
+			  labels:
+				app: nginx
+			spec:
+			  replicas: 3
+			  selector:
+				matchLabels:
+				  app: nginx
+			  template:
+				metadata:
+				  labels:
+					app: nginx
+				spec:
+				  containers:
+				  - name: nginx
+					image: nginx:1.14.2
+					ports:
+					- containerPort: 80
+					resources:
+					  requests:
+						memory: "64Mi"
+						cpu: "250m"
+					  limits:
+						memory: "128Mi"
+						cpu: "500m"
+
+		Verify
+			k describe pods limits
+				Name:         limits
+					Limits:
+					  cpu:     500m
+					  memory:  128Mi
+					Requests:
+					  cpu:        250m
+					  memory:     64Mi
+
+	metrics
+		Metrics do not exists on a vanilla k8s
+		HPA scaling up is fast, scaling down is slow (takes about 5 minutes)
+		
+		HPA scaling example
+			apiVersion: autoscaling/v1
+			kind: HorizontalPodAutoscaler
+			metadata:
+			  name: nginx-deployment
+			  namespace: default
+			spec:
+			  maxReplicas: 10
+			  minReplicas: 1
+			  scaleTargetRef:
+				apiVersion: apps/v1
+				kind: Deployment
+				name: nginx-deployment
+			  targetCPUUtilizationPercentage: 50
+
+		
+
+		1: Create a HPA for the limits deployment you created earlier.
+		Name it limits
+		You can see if it works by running a describe.
+
+		
+Day 4
+
+	Security
+		Authentication
+		(https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
+
+			Kubernetes has one way of authenticating out of the box
+
+				Example of minimal service account
+				Service accounts
+					apiVersion: v1
+					kind: SeriviceAccount
+					metadata:
+					  name: build-robot
+
+				Add service account to the metadata of a pod
+			
+			
+			Now that we know who you are, what are you allowed to do?
+				Roles!
+					- Namespace role
+					- Cluster-role
+					
+				Role example:
+					apiVersion: rbac.authorization.k8s.io/v1
+					kind: Role
+					metadata:
+					  namespace: default
+					  name: pod-reader
+					rules:
+					- apiGroups: [""] # "" indicates the core API group
+					  resources: ["pods"]
+					  verbs: ["get", "watch", "list"]			
+			
+			Rolebinding defines where you get access
+			Rolebindings also exist as
+				- ClusterRole
+				- ClusterRoleBinding
+
+			Clusterrolbinding can ONLY use clusterroles
+
+
+		Assignment
+			RBAC 1
+				For this challenge do the following:
+
+				Create a ServiceAccount named student
+				Create a role that allows to get pods in the default namespace.
+				Create a Debug Pod that uses the ServiceAccount.
+				Bind the role to the service account with a rolebinding.
+				Test from your debug-shell that you can kubectl get pods.
+
+			1-sa.yaml
+				apiVersion: v1
+				kind: ServiceAccount
+				metadata:
+				  name: student
+
+
+			1-role.yaml
+				apiVersion: rbac.authorization.k8s.io/v1
+				kind: Role
+				metadata:
+				  namespace: default
+				  name: getpods
+				rules:
+				- apiGroups: [""]
+				  resources: ["pods"]
+				  verbs: ["get, list"]
+
+			1-debug.yaml 
+				apiVersion: v1
+				kind: Pod
+				metadata:
+				  labels:
+					run: debug-shell
+				  name: debug-shell
+				spec:
+				  serviceAccountName: student
+				  containers:
+					- args:
+						- /bin/ash
+						- -c
+						- 'apk add curl --no-cache && curl -Lo /usr/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x /usr/bin/kubectl && tail -f /dev/null'
+					  image: alpine
+					  imagePullPolicy: Always
+					  name: debug-shell
+				# Use with kubectl exec -it debug-shell -- ash
+
+			1-rb.yaml
+				apiVersion: rbac.authorization.k8s.io/v1
+				kind: RoleBinding
+				metadata:
+				  name: my-role-binding
+				  namespace: default
+				roleRef:
+				  apiGroup: rbac.authorization.k8s.io
+				  kind: Role
+				  name: getpods
+				subjects:
+				- kind: ServiceAccount
+				  name: student
+			
+			Testing (BIG FAIL!):
+				kubectl exec -it debug-shell -- ash
+				/ # kubectl get pods
+				Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:default:student" cannot list resource "pods" in API group "" in the namespace "default"
+
+			Added the list to the role:
+				kubectl exec -it debug-shell -- ash
+				/ # kubectl get pods
+				NAME          READY   STATUS    RESTARTS   AGE
+				debug-shell   1/1     Running   0          3m52s
+				/ # 
+
+			get will allow you to access a specific pod, not all.
+			list will allow you to list all pods, but not get a specific pod.
+
+
+		Assignment 2
+			RBAC 2
+				Use the same ServiceAccount you used for Challenge 1.
+
+				Create a ClusterRole that allows to kubectl get pods and name it student.
+				Remove the old Role and Rolebinding
+				Bind the ClusterRole to the ServiceAccount with a RoleBinding.
+				Test from your debug-shell that you can kubectl get pods.		
+		
+			2-crole.yaml
+				apiVersion: rbac.authorization.k8s.io/v1
+				kind: ClusterRole
+				metadata:
+				  # "namespace" omitted since ClusterRoles are not namespaced
+				  name: student
+				rules:
+				- apiGroups: [""]
+				  #
+				  # at the HTTP level, the name of the resource for accessing Secret
+				  # objects is "secrets"
+				  resources: ["pods"]
+				  verbs: ["get", "list"]
+
+			k delete -f ../1-rb.yaml 
+				rolebinding.rbac.authorization.k8s.io "my-role-binding" deleted
+			k delete -f ../1-role.yaml 
+				role.rbac.authorization.k8s.io "getpods" deleted
+
+			2-rb.yaml 
+				apiVersion: rbac.authorization.k8s.io/v1
+				kind: RoleBinding
+				metadata:
+				  name: my-role-binding
+				  namespace: default
+				roleRef:
+				  apiGroup: rbac.authorization.k8s.io
+				  kind: ClusterRole
+				  name: student
+				subjects:
+				- kind: ServiceAccount
+				  name: student
+
+		Assignment 3
+			RBAC 3
+				Use the same ServiceAccount you used for Challenge 1.
+
+				Enable the ServiceAccount to get pods from the kube-system namespace.
+
+			3-rb.yaml
+				apiVersion: rbac.authorization.k8s.io/v1
+				kind: RoleBinding
+				metadata:
+				  name: kube-system-binding
+				  namespace: kube-system
+				roleRef:
+				  apiGroup: rbac.authorization.k8s.io
+				  kind: Role
+				  name: getpods-system
+				subjects:
+				- kind: ServiceAccount
+				  name: student
+				  namespace: default		( <= needs this to indicate where the account is to use)
+
+
+	Network Policies
+		(https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+
+		Example network policy
+			apiVersion: networking.k8s.io/v1
+			kind: NetworkPolicy
+			metadata:
+			  name: test-network-policy
+			  namespace: default
+			spec:
+			  podSelector:
+				matchLabels:
+				  role: db
+			  policyTypes:
+				- Ingress
+				- Egress
+			  ingress:
+				- from:
+					- ipBlock:
+						cidr: 172.17.0.0/16
+						except:
+						  - 172.17.1.0/24
+					- namespaceSelector:
+						matchLabels:
+						  project: myproject
+					- podSelector:
+						matchLabels:
+						  role: frontend
+				  ports:
+					- protocol: TCP
+					  port: 6379
+			  egress:
+				- to:
+					- ipBlock:
+						cidr: 10.0.0.0/24
+				  ports:
+					- protocol: TCP
+					  port: 5978
+					- protocol: TCP             (or add this for DNS)
+					  port: 53
+
+		In this example, there is no egress 53 (DNS), so DNS will not work. Better to ignore egress
+
+		Network policies act on LABELS
+		ingress is incoming traffic
+		egress is outgoing traffic
+		 
+		Assignment
+			Network Policy
+			Make sure that the test pod in the default namespace can reach the following service:
+			cani.netpolicy
+			You are not allowed to add, delete or change ANY resources in the namespace netpolicy
+
+			kubectl -n netpolicy get pods
+				NAME                                READY   STATUS    RESTARTS   AGE
+				nginx-deployment-66b6c48dd5-74cng   1/1     Running   0          30m
+				nginx-deployment-66b6c48dd5-p75gt   1/1     Running   0          30m
+				nginx-deployment-66b6c48dd5-brrpn   1/1     Running   0          30m
+
+			kubectl -n netpolicy get svc
+				NAME   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+				cani   ClusterIP   10.43.67.236   <none>        80/TCP    30m
+
+			k get netpol -A
+				NAMESPACE   NAME                POD-SELECTOR   AGE
+				netpolicy   noyoucant           app=nginx      30m
+				default     my-network-policy   <none>         23m
+
+			k describe netpol -n netpolicy
+				Name:         noyoucant
+				Namespace:    netpolicy
+				Created on:   2023-09-28 09:44:20 +0000 UTC
+				Labels:       <none>
+				Annotations:  <none>
+				Spec:
+				  PodSelector:     app=nginx
+				  Allowing ingress traffic:
+					To Port: 80/TCP
+					From:
+					  NamespaceSelector: cani=yesyoucan
+				  Not affecting egress traffic
+				  Policy Types: Ingress
+			  
+			kubectl label ns default cani=yesyoucan
+
+			ssh test
+				kubectl exec -it test-pod -- ash
+				/ # curl cani.netpolicy
+				<!DOCTYPE html>
+				<html>
+				<head>
+				<title>Welcome to nginx!</title>
+				<style>
+					body {
+						width: 35em;
+						margin: 0 auto;
+						font-family: Tahoma, Verdana, Arial, sans-serif;
+					}
+				</style>
+				</head>
+				<body>
+				<h1>Welcome to nginx!</h1>
+				<p>If you see this page, the nginx web server is successfully installed and
+				working. Further configuration is required.</p>
+
+				<p>For online documentation and support please refer to
+				<a href="http://nginx.org/">nginx.org</a>.<br/>
+				Commercial support is available at
+				<a href="http://nginx.com/">nginx.com</a>.</p>
+
+				<p><em>Thank you for using nginx.</em></p>
+				</body>
+				</html>
+
+			So, read the netpolicy, see what it does allow, set (IN THIS CASE ADD A LABEL)
+
+	Storage
+
+		Assignment
+			(https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
+		
+			Persistent Volumes
+				Create a hostpath PV
+				Create a PVC
+				Create a deployment with 1 replica using nginx. This deployment should use the before created PVC
+				Write a file to the mounted path. use kubectl cp <your file> <your pod>:/<path on pod>
+				Test that data is retained if you kill the pod
+				Name the PV long-data
+
+			hostPath is the path on the kubernetes node.
+
+			root@main:/workspace/storage# cat 1-dep.yaml
+				apiVersion: apps/v1
+				kind: Deployment
+				metadata:
+				  name: nginx-deployment
+				  labels:
+					app: nginx
+				spec:
+				  replicas: 1
+				  selector:
+					matchLabels:
+					  app: nginx
+				  template:
+					metadata:
+					  labels:
+						app: nginx
+					spec:
+					  containers:
+					  - name: nginx
+						image: nginx:1.14.2
+						ports:
+						- containerPort: 80
+						volumeMounts:
+						- name: nginx-pv
+						  mountPath: /var/www/html
+					  volumes:
+					  - name: nginx-pv
+						persistentVolumeClaim:
+						  claimName: my-pv-claim
+			root@main:/workspace/storage# cat 1-pv.yaml
+				apiVersion: v1
+				kind: PersistentVolume
+				metadata:
+				  name: my-pv-volume
+				  labels:
+					type: local
+				spec:
+				  storageClassName: manual
+				  capacity:
+					storage: 10Gi
+				  accessModes:
+					- ReadWriteOnce
+				  hostPath:
+					path: "/mnt/data"
+			root@main:/workspace/storage# cat 1-pvc.yaml
+				apiVersion: v1
+				kind: PersistentVolumeClaim
+				metadata:
+				  name: my-pv-claim
+				spec:
+				  storageClassName: manual
+				  accessModes:
+					- ReadWriteOnce
+				  resources:
+					requests:
+					  storage: 3Gi
+				  
+			k get pods
+				NAME                                READY   STATUS    RESTARTS   AGE
+				nginx-deployment-5d4d9944b4-dn8fn   1/1     Running   0          88s
+
+			kubectl cp 1-dep.yaml nginx-deployment-5d4d9944b4-dn8fn:/var/www/html
+
+			k delete pod  nginx-deployment-5d4d9944b4-dn8fn
+				
+
+			k get pods
+				NAME                                READY   STATUS    RESTARTS   AGE
+				nginx-deployment-5d4d9944b4-hvpk6   1/1     Running   0          72s
+
+			kubectl exec -it nginx-deployment-5d4d9944b4-hvpk6 -- bash
+				root@nginx-deployment-5d4d9944b4-hvpk6:/# ls -lsa /var/www/html
+				total 12
+				4 drwxr-xr-x 2 root root 4096 Sep 28 12:00 .
+				4 drwxr-xr-x 3 root root 4096 Sep 28 12:01 ..
+				4 -rw-r--r-- 1 root root  525 Sep 28 12:00 1-dep.yaml
+
+
+
+
+	Stateless pods that share data
+		(https://kubernetes.io/docs/concepts/storage/volumes/)
+
+		Using emptyDir
+			Example (pseudo code!):
+			apiVersion: v1
+			kind: Pod
+			metadata:
+			  name: test-pd
+			spec:
+			  containers:
+			  - image: k8s.gcr.io/test-webserver
+				name: webserver
+				volumeMounts:
+				- mountPath: /logs
+				  name: log
+			  - image: fluentd
+				name: logForwarder
+				volumeMounts:
+				- mountPath: /readLogPath
+				  name: log
+			  volumes:
+			  - name: log
+				emptyDir: {}
+
+	
+		Assignment
+			Sharing data between pods
+			There is a Index.html file available at:
+
+			https://storage.googleapis.com/fs-instruqt-assets/storage/assets/content/index.html
+
+			Create a Deployment that: Has 2 containers. Container 1:
+
+			Downloads the index.html
+			Copies it to an emptyDir Container 2:
+			Serves the data via a nginx container.
+			Name the deployment sharing-data
+
+			My try:
+				apiVersion: apps/v1
+				kind: Deployment
+				metadata:
+				  name: sharing-data
+				  labels:
+					app: nginx
+				spec:
+				  replicas: 1
+				  selector:
+					matchLabels:
+					  app: nginx
+				  template:
+					metadata:
+					  labels:
+						app: nginx
+					spec:
+					  initcontainers:
+						- args:
+							- /bin/ash
+							- -c
+							- 'wget -O /var/www/html https://storage.googleapis.com/fs-instruqt-assets/storage/assets/content/index.html'
+						image: alpine
+						volumeMounts:
+						- mountPath: /var/www/html
+						name: cache-volume
+						- name: nginx
+						  image: nginx:1.14.2
+						  ports:
+						  - containerPort: 80
+						  volumeMounts:
+						  - mountPath: /var/www/html
+							name: cache-volumsee
+					  volumes:
+					  - name: cache-volume
+						emptyDir:
+						  sizeLimit: 500Mi
+
+			Corrected version
+				apiVersion: apps/v1
+				kind: Deployment
+				metadata:
+				  name: sharing-data
+				  labels:
+					app: nginx
+				spec:
+				  replicas: 3
+				  selector:
+					matchLabels:
+					  app: nginx
+				  template:
+					metadata:
+					  labels:
+						app: nginx
+					spec:
+					  initContainers:
+					  - name: dl
+						image: alpine:latest
+						command:
+						- /bin/sh
+						- -c
+						- "wget -O /www/data https://storage.googleapis.com/fs-instruqt-assets/storage/assets/content/index.html"
+						volumeMounts:
+						- name: data
+						  mountPath: /var/data
+					  containers:
+					  - name: nginx
+						image: nginx:1.14.2
+						ports:
+						- containerPort: 80
+						volumeMounts:
+						- name: data
+						  mountPath: /var/data
+					  volumes:
+					   - name: data
+						 emptyDir: {}
+
+			Working now?
+				apiVersion: apps/v1
+				kind: Deployment
+				metadata:
+				  name: sharing-data
+				  labels:
+					app: nginx
+				spec:
+				  replicas: 3
+				  selector:
+					matchLabels:
+					  app: nginx
+				  template:
+					metadata:
+					  labels:
+						app: nginx
+					spec:
+					  initContainers:
+					  - name: dl
+						image: alpine:latest
+						command:
+						- /bin/sh
+						- -c
+						- "wget -O /var/data/index.html https://storage.googleapis.com/fs-instruqt-assets/storage/assets/content/index.html"
+						volumeMounts:
+						- name: data
+						  mountPath: /var/data
+					  containers:
+					  - name: nginx
+						image: nginx:1.14.2
+						ports:
+						- containerPort: 80
+						volumeMounts:
+						- name: data
+						  mountPath: /var/data
+					  volumes:
+					   - name: data
+						 emptyDir: {}

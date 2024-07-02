@@ -1,0 +1,48 @@
+i3D - Service catalog
+
+Subject
+	1st to contact
+		2nd to contact
+
+
+A10 (#ops-noc)
+	Bas Van Elburg
+	Zekirija Memishi
+	Dave Miles
+
+CDN
+	Rogier van Eeten
+
+
+MS-HealthCheck-runner
+	@team-dev-codeleones
+		Scarlet
+		Seyed
+
+i3D.net
+	Kyle Dearle
+
+Smartdc.net
+	Kyle Dearle
+
+Moving servers
+	Jeroen Wijnstra
+	Jardi van der Wal
+
+Nagios & Nagios Users
+	Jardi van der Wal
+	Nick in ‘t Veld (Architect)
+
+Wordpress
+	Kyle Dearle
+
+RabbitMQ
+	Rowdy Van der Meer
+
+Elastic
+	That would probably be me....
+
+Redis
+
+Cronhost
+

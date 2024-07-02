@@ -1,0 +1,19 @@
+Seyed Mostafavi
+:house_with_garden: Today at 3:03 PM
+@devops can someone restart the task with task ID 123 at cronhost2p ? (edited) 
+:green-check-mark-nobox:
+1
+
+3 replies
+New
+
+
+Joao Conde
+  10 minutes ago
+I can
+
+
+Joao Conde
+  1 minute ago
+nlrtm root@nlrtm1-cronhost2p:/home/jconde# sudo systemctl restart i3d-task-123
+nlrtm root@nlrtm1-cronhost2p:/home/jconde# sudo systemctl status i3d-task-123

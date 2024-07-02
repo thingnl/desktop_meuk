@@ -1,0 +1,53 @@
+
+defra1-rabbitodp01d.sys.i3d.network	ens192	 188.122.69.228	188.122.69.255
+defra1-rabbitodp02d.sys.i3d.network	ens192	 188.122.69.229	188.122.69.255
+defra1-rabbitodp03d.sys.i3d.network	ens192	 188.122.69.230	188.122.69.255
+
+nlrtm1-rabbitodp02d.sys.i3d.network	ens192	 5.200.23.197	5.200.23.223
+nlrtm1-rabbitodp01d.sys.i3d.network	ens192	 5.200.23.196	5.200.23.223
+nlrtm1-rabbitodp03d.sys.i3d.network	ens192	 5.200.23.198	5.200.23.223
+
+defra1-rabbitodp01t.sys.i3d.network	ens192	 188.122.69.231	188.122.69.255
+defra1-rabbitodp02t.sys.i3d.network	ens192	 188.122.69.232	188.122.69.255
+defra1-rabbitodp03t.sys.i3d.network	ens192	 188.122.69.233	188.122.69.255
+
+nlrtm1-rabbitodp01t.sys.i3d.network	ens192	 5.200.23.199	5.200.23.223
+nlrtm1-rabbitodp02t.sys.i3d.network	ens192	 5.200.23.200	5.200.23.223
+nlrtm1-rabbitodp03t.sys.i3d.network	ens192	 5.200.23.201	5.200.23.223
+
+defra1-rabbitodp01a.sys.i3d.network
+defra1-rabbitodp02a.sys.i3d.network
+defra1-rabbitodp03a.sys.i3d.network
+defra1-rabbitodp04a.sys.i3d.network
+defra1-rabbitodp05a.sys.i3d.network
+defra1-rabbitodp06a.sys.i3d.network
+defra1-rabbitodp07a.sys.i3d.network
+
+nlrtm1-rabbitodp01a.sys.i3d.network	bond0	 213.163.84.205	213.163.84.255
+nlrtm1-rabbitodp02a.sys.i3d.network	bond0	 213.163.84.201	213.163.84.255
+nlrtm1-rabbitodp03a.sys.i3d.network	bond0	 213.163.84.203	213.163.84.255
+nlrtm1-rabbitodp04a.sys.i3d.network	bond0	 213.163.84.199	213.163.84.255
+nlrtm1-rabbitodp05a.sys.i3d.network	bond0	 213.163.84.211	213.163.84.255
+nlrtm1-rabbitodp06a.sys.i3d.network	bond0	 213.163.84.207	213.163.84.255
+nlrtm1-rabbitodp07a.sys.i3d.network	bond0	 213.163.84.209	213.163.84.255
+
+defra1-rabbitodp01p.sys.i3d.network
+defra1-rabbitodp02p.sys.i3d.network
+defra1-rabbitodp03p.sys.i3d.network
+defra1-rabbitodp04p.sys.i3d.network
+defra1-rabbitodp05p.sys.i3d.network
+defra1-rabbitodp06p.sys.i3d.network
+defra1-rabbitodp07p.sys.i3d.network
+defra1-rabbitodp08p.sys.i3d.network
+defra1-rabbitodp09p.sys.i3d.network
+
+nlrtm1-rabbitodp01p.sys.i3d.network	bond0	 213.163.84.204	213.163.84.255
+nlrtm1-rabbitodp02p.sys.i3d.network	bond0	 213.163.84.200	213.163.84.255
+nlrtm1-rabbitodp03p.sys.i3d.network	bond0	 213.163.84.202	213.163.84.255
+nlrtm1-rabbitodp04p.sys.i3d.network	bond0	 213.163.84.198	213.163.84.255
+nlrtm1-rabbitodp05p.sys.i3d.network	bond0	 213.163.84.210	213.163.84.255
+nlrtm1-rabbitodp06p.sys.i3d.network
+nlrtm1-rabbitodp07p.sys.i3d.network	bond0	 213.163.84.208	213.163.84.255
+nlrtm1-rabbitodp08p.sys.i3d.network	bond0	 213.163.84.196	213.163.84.255
+nlrtm1-rabbitodp09p.sys.i3d.network	bond0	 213.163.84.197	213.163.84.255
+

@@ -1,0 +1,75 @@
+==========================================================================================================================
+Service PROBLEM notification												Resolution:
+Host:		nlrtm1-dbcm1p.sys.i3d.network									- Restart the collectd service
+IP:			5.200.10.13															systemctl restart collectd
+Groups:		nlrtm1,Devops Managed Infra
+Service:	Collectd memory usage
+Info:		Memory: WARNING VIRT: 8376 MB - RES: 7682 MB used!
+
+==========================================================================================================================
+Service PROBLEM notification												Resolution:
+Host:		nlrtm1-monitor2d.sys.i3d.network								- Influxdb died probably due to I/O waits
+IP:			nlrtm1-monitor2d.sys.i3d.network									systemctl start influxdb
+Groups:		nlrtm1,Devops Managed Infra											systemctl start mysqld
+Service:	influxdb Service Status												systemctl start grafana-server.service		
+Info:		(Service Check Timed Out On Worker: nlrtm1-nagiosworker02p)			docker restart e588c090aba5
+
+At present, the influx server is overloaded. I/O remains very high. Verify with 'iostat -xd 2'. Adding 64Gb (128Gb total)
+gave some time, but something has to move away from the server. Keep an eye on http://monitoring.dev.i3d.net/login
+
+==========================================================================================================================
+dev-ops-public SQL request													Resolution:
+@devops can some please run this query on production:						- Check if statement seems correct. ; missing?
+	UPDATE odp.hostFleetSwap SET finishedAt=1652424017 where 				- Run on test and/or production as needed
+	dedicatedServerId=272697;												- Set status on request (hourglass/green v)
+
+More information in 'SQL - Run requests.txt'
+
+==========================================================================================================================
+dev-ops-public SQL request													Resolution:
+INSERT INTO customerbackend.automatedtasks (taskDescription,lastStart,		- Treat as normal SQL reuest
+lastRun,nextRun,runPeriod,active,functionName,outputLogging,`type`,			- Next, run 1t/2p ansible playbook
+executable,runOn,runEvery) VALUES ('Monthly healthcare whitelist',				ansible-playbook playbooks/configure.yml \
+1652704390,1652704390,259200,259200,1,'main',1,'cli','/usr/bin/php',			-i inventories/dev_to_infra_hosts.ini -l \
+'*-*-1 00:00:00',NULL); 														nlrtm1-cronhost2p.sys.i3d.network -u \
+																				mlebbink -K --tags i3d_tasks --diff
+
+																			- Verify creation of service:
+																				cron-testing sudo systemctl status i3d-task-270
+																				cron-testing sudo systemctl status i3d-task-270.timer
+																				cron-production sudo systemctl status i3d-task-270
+																				cron-production sudo systemctl status i3d-task-270.timer
+
+Manual adjustment of the next free task-id can be done using: 
+	SHOW CREATE TABLE customerbackend.automatedtasks \G
+	ALTER TABLE customerbackend.automatedtasks AUTO_INCREMENT = 271;
+	SHOW CREATE TABLE customerbackend.automatedtasks \G
+
+==========================================================================================================================
+User reported issue															Resolution:				
+2022/06/23 13:51:29 [error] 83048#83048: *251726 access forbidden by 		- Configured in the nginx.conf file
+rule, client: 31.204.146.153, server: development-www.i3d.net, request: 	- Add allow rule like:	
+"POST /wp-admin/admin-ajax.php HTTP/1.1", host: "development-www.i3d.net", 		allow 31.204.146.153; # "nlrtm1-cms2p.sys.i3d.network"
+referrer: "https://www.i3d.net/wp-admin/admin-ajax.php"						- Reload service
+
+==========================================================================================================================
+dev-ops-public Access request												Resolution:
+@devops can someone help me out to give me access 2 new docker 				- Log on to test-portainer
+service created by out automatic deployment script.							- Find the correct service
+In *testing environment														- Change ownership to group development
+ha-cloudscaler-event-v15													- Click update to save.
+ha-cloudscaler-v15
+
+==========================================================================================================================
+
+
+==========================================================================================================================
+
+
+==========================================================================================================================
+
+
+==========================================================================================================================
+
+
+

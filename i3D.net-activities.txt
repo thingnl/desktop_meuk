@@ -1,0 +1,53 @@
+i3D.net k8s migration
+
+													Todo		In progress			Done
+Setup iks connection
+	Setup omnictl																	X
+	Setup talosctl																	X
+	Setup kubectl																	X
+	Setup ctx																		X
+	Setup ns																		X
+	Setup oidc																		X
+	Setup stern																		X
+	Setup k9s																		X
+	
+Setup test cluster
+	Create cluster																	X
+	Install Ceph storage provider													X
+
+Setup
+	Create mariadb-deployment yaml													X
+	Create wordpress-deployment yaml												X
+	Create presistant storage yaml													X
+	Create secrets for testing														X
+	Add persistent storage to mariadb												X
+	Add persistent storage to wordpress												X
+	Reconfigure to Debian 11 + NGINX												X
+	
+	Create custom WP image with data source							X
+	Add data to wordpress storage					X
+
+	Connect wp to external mariadb									X
+	Add run parameters to secrets					X
+
+
+
+
+To be included/looked at
+	- SSL certs (https://github.com/bitnami/containers/tree/main/bitnami/nginx#adding-custom-server-blocks)
+	- Custom server blocks
+	- /opt/bitnami/nginx/conf/nginx.conf. You can overwrite the nginx.conf
+	- Redirects
+
+
+
+Not a "thing"
+	Database replication as it will be an external database with build in replication
+
+
+Design choices:
+	- Continue using NGINX as web server. Known to work
+	- Run WP as a not privileged user for security reasons
+	- Have WP-CLI installed as it helps with maintenance tasks
+	- PHP minimal version 8
+	
